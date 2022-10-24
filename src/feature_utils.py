@@ -9,10 +9,6 @@ spliter = re.compile("[ \n\r\t]|([,:;?.!/\(\)\-\"“”‘’'`$])")
 fullPunctuations = "(（[ •*,:;?.!/)）-−–‐«»„\"“”‘’'`$#@]*\u2666\u2665\u2663\u2660\u00A0";
 
 
-def tokenize(text):
-    return [t for t in spliter.split(text) if t]
-
-
 def skip_feature(forbid_zone, layout_token):
     """如果token在forbid_zone中，那么跳过这个token"""
     x0 = float(string0.attrs["HPOS"])
@@ -24,6 +20,10 @@ def skip_feature(forbid_zone, layout_token):
     token_zone = Rect(x0, y0, x1, y1)
     
     return forbid_zone.intersects(token_zone)
+
+
+def tokenize(text):
+    return [t for t in spliter.split(text) if t]
 
 
 def get_bucket_num(cur, total, bucket):

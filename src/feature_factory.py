@@ -4,7 +4,9 @@ from collections import Counter, OrderedDict
 from functools import partial 
 
 from bs4 import BeautifulSoup
-from src.feature_utils import *
+from src.feature_utils import skip_feature, \
+    tokenize, get_bucket_num, capital, digital, punct, 
+    build_font_feature_map, vectorize
 from src.cmd_utils import wapiti_infer
 
 PAGE_INFO = ["PAGESTART", "PAGEIN", "PAGEEND"]
