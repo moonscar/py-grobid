@@ -9,14 +9,16 @@ spliter = re.compile("[ \n\r\t]|([,:;?.!/\(\)\-\"“”‘’'`$])")
 fullPunctuations = "(（[ •*,:;?.!/)）-−–‐«»„\"“”‘’'`$#@]*\u2666\u2665\u2663\u2660\u00A0";
 
 
-def skip_feature(forbid_zone, layout_token):
-    """如果token在forbid_zone中，那么跳过这个token"""
-    x0 = float(string0.attrs["HPOS"])
-    y0 = float(string0.attrs["VPOS"])
-    x1 = x0 + float(string0.attrs["HEIGHT"])
-    y1 = y0 + float(string0.attrs["WIDTH"])
+def token_in_forbid_zone(layout_token, forbid_zone):
+    """如果token在forbid_zone范围内，那么返回True"""
+    if not forbid_zone:
+        return False
 
-#     forbid_zone = Rect()
+    x0 = float(layout_token.attrs["HPOS"])
+    y0 = float(layout_token.attrs["VPOS"])
+    x1 = x0 + float(layout_token.attrs["HEIGHT"])
+    y1 = y0 + float(layout_token.attrs["WIDTH"])
+
     token_zone = Rect(x0, y0, x1, y1)
     
     return forbid_zone.intersects(token_zone)

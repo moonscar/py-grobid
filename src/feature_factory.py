@@ -4,7 +4,7 @@ from collections import Counter, OrderedDict
 from functools import partial 
 
 from bs4 import BeautifulSoup
-from src.feature_utils import skip_feature, \
+from src.feature_utils import token_in_forbid_zone, \
     tokenize, get_bucket_num, capital, digital, punct, 
     build_font_feature_map, vectorize
 from src.cmd_utils import wapiti_infer
@@ -231,6 +231,10 @@ class FeatureFactory():
             line_tokens = text_line.find_all("String")
 
             for i, token in enumerate(line_tokens, start=1):
+                if token_in_forbid_zone(token, None):
+                    # To do: Skip this feature
+                    continue
+
                 feature_token = token
                 full_token_text = token.attrs["CONTENT"]
 
