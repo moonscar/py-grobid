@@ -4,7 +4,7 @@ from collections import Counter, OrderedDict
 from functools import partial 
 
 from bs4 import BeautifulSoup
-from src.feature_utils import token_in_forbid_zone, \
+from src.feature_utils import token_in_forbid_zones, \
     tokenize, get_bucket_num, capital, digital, punct, 
     build_font_feature_map, vectorize
 from src.cmd_utils import wapiti_infer
@@ -47,7 +47,7 @@ class FeatureFactory():
 
         self.dump_map[feature_type] = output_path
 
-    def build_feature(self, output_path=""):
+    def build_feature(self, output_path="", extern_feature={}):
         # 直接读取原始的alto.xml，build
         self.feature_map["segment"] = self._extract_for_segment()
 
@@ -70,9 +70,11 @@ class FeatureFactory():
 
         # 获取fulltext需要分类的部分，使用fulltext
         fulltext_feature = []
+        extern_features = extern_feature
         for block in self.block_map["<body>"]:
             page_height = float(block.parent.parent.attrs["HEIGHT"])
-            token_features = self._extract_for_fulltext(block, {"page_height": page_height})
+            extern_feature["page_height"] = page_height
+            token_features = self._extract_for_fulltext(block, extern_feature)
             fulltext_feature.extend(token_features)
 
         self.feature_map["fulltext"] = fulltext_feature
@@ -225,13 +227,15 @@ class FeatureFactory():
         block_info = BLOCK_INFO[0]
         max_line_len = 1
 
+        forbid_zones = extern_feature.get("forbid_zones", [])
+
         for text_line in text_block.children:
             line_info = LINE_INFO[0]
 
             line_tokens = text_line.find_all("String")
 
             for i, token in enumerate(line_tokens, start=1):
-                if token_in_forbid_zone(token, None):
+                if token_in_forbid_zones(token, forbid_zones):
                     # To do: Skip this feature
                     continue
 

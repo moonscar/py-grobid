@@ -9,9 +9,9 @@ spliter = re.compile("[ \n\r\t]|([,:;?.!/\(\)\-\"“”‘’'`$])")
 fullPunctuations = "(（[ •*,:;?.!/)）-−–‐«»„\"“”‘’'`$#@]*\u2666\u2665\u2663\u2660\u00A0";
 
 
-def token_in_forbid_zone(layout_token, forbid_zone):
+def token_in_forbid_zones(layout_token, forbid_zones):
     """如果token在forbid_zone范围内，那么返回True"""
-    if not forbid_zone:
+    if not forbid_zones:
         return False
 
     x0 = float(layout_token.attrs["HPOS"])
@@ -20,8 +20,9 @@ def token_in_forbid_zone(layout_token, forbid_zone):
     y1 = y0 + float(layout_token.attrs["WIDTH"])
 
     token_zone = Rect(x0, y0, x1, y1)
-    
-    return forbid_zone.intersects(token_zone)
+    results = (fz.intersects(token_zone) for fz in forbid_zones)
+
+    return any(results)
 
 
 def tokenize(text):
