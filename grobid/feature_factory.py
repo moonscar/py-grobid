@@ -29,6 +29,7 @@ class FeatureFactory():
         self.feature_map = {}
         self.font_map = {}
         self.dump_map = {}
+        self.valid_lines = set()
 
     def prepare(self):
         with open(self.alto_path) as f:
@@ -136,6 +137,8 @@ class FeatureFactory():
 
                     if not first_token_text:
                         continue
+                    else:
+                        self.valid_lines.add(text_line.attrs["ID"])
 
                     # if skip_feature(feature_token):
                     #     continue
