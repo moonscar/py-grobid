@@ -4,9 +4,11 @@ from collections import Counter, OrderedDict
 from functools import partial 
 
 from bs4 import BeautifulSoup
+from english_words import english_words_set
+
 from grobid.feature_utils import token_in_forbid_zones, \
     tokenize, get_bucket_num, capital, digital, punct, \
-    build_font_feature_map, vectorize
+    build_font_feature_map, vectorize, fullPunctuations
 from grobid.cmd_utils import wapiti_infer
 
 PAGE_INFO = ["PAGESTART", "PAGEIN", "PAGEEND"]
@@ -18,10 +20,6 @@ feature_cols = {
     "fulltext": ["token_text", "lower_token", "token_prefix", "token_suffix", "block_info", "line_info", "align_status", "font_type", "font_size_type", "font_bold", "font_italics", "is_captal", "is_digital", "single_char", "punct_info", "relative_document_position", "relative_page_position_characters", "bitmap_around", "calloutType", "calloutKnown", "superscript"]
     }
 
-wapiti_model_map = {
-    "segment": "/Users/hyy/mytask/b_paper/playground/Wapiti/data/seg_model.wapiti",
-    "fulltext": "/Users/hyy/mytask/b_paper/playground/Wapiti/data/fulltext_model.wapiti",
-}
 
 class FeatureFactory():
     """
@@ -134,8 +132,11 @@ class FeatureFactory():
                 for text_line in text_block.children:
                     first_token = text_line.next
                     feature_token = first_token
-                    first_token_text = first_token.attrs["CONTENT"]
-                    
+                    first_token_text = first_token.attrs["CONTENT"].strip()
+
+                    if not first_token_text:
+                        continue
+
                     # if skip_feature(feature_token):
                     #     continue
 
@@ -335,6 +336,13 @@ class FeatureFactory():
 
                 # 归并相同label的特征行，经过验证，label相同的行一定属于同一个block
                 for text_line in text_block.children:
+                    first_token = text_line.next
+                    feature_token = first_token
+                    first_token_text = first_token.attrs["CONTENT"].strip()
+
+                    if not first_token_text:
+                        continue
+
                     label = features[feature_idx].split("\t")[1]
                     line_labels.add(label.strip().lstrip("I-"))
                     feature_idx += 1
