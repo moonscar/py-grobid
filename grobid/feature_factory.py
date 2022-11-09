@@ -210,6 +210,7 @@ class FeatureFactory():
                         "in_main_area": "1", # inMainArea
                         # extra info for debug
                         "full_line": full_line,
+                        "line_id": text_line.attrs["ID"],
                     })
 
                     if block_info == BLOCK_INFO[0]:
@@ -304,6 +305,9 @@ class FeatureFactory():
                         "calloutType": "UNKNOWN",
                         "calloutKnown": 0,
                         "superscript": self.font_map[cur_font]["superscript"],
+                        # extra info for debug
+                        "line_id": token.parent.attrs["ID"],
+                        "str_id": token.attrs["ID"],
                     }
 
                     feature_list.append(a_feature)
