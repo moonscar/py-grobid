@@ -4,7 +4,7 @@ alto_path = "/Users/hyy/workflow/pdf_lab/pdfalto/pdfalto"
 wapiti_path = "/Users/hyy/mytask/b_paper/playground/Wapiti/wapiti"
 
 def alto_parser(pdf_path, output_path):
-    ret = subprocess.call([alto_path, pdf_path],shell=True)
+    ret = subprocess.call([alto_path, pdf_path, output_path])
     return ret
 
 def wapiti_infer(model_path, feature_path):
