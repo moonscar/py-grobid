@@ -8,7 +8,8 @@ from english_words import english_words_set
 
 from grobid.feature_utils import token_in_forbid_zones, \
     tokenize, get_bucket_num, capital, digital, punct, \
-    build_font_feature_map, vectorize, fullPunctuations
+    build_font_feature_map, vectorize, fullPunctuations, \
+    special_pattern_test, special_set_test
 from grobid.cmd_utils import wapiti_infer
 
 PAGE_INFO = ["PAGESTART", "PAGEIN", "PAGEEND"]
@@ -189,12 +190,12 @@ class FeatureFactory():
                         "is_digital": digital(first_token_text), #
                         "single_char": "1" if len(first_token_text)==1 and first_token_text.isalpha() else "0",
                         "proper_name": "0", # properName
-                        "common_name": "1" if first_token_text.lower() in english_words_set else "0", # 17. commonName
+                        "common_name": special_set_test("common", first_token_text), # 17. commonName
                         "first_name": "0", # firstName
-                        "year": "0", # year
-                        "mounth": "0", # 20. month
-                        "email": "0", # email
-                        "http": "0", # http
+                        "year": special_pattern_test("year", first_token_text), # year
+                        "mounth": special_set_test("month", first_token_text), # 20. month
+                        "email": special_pattern_test("email", first_token_text), # email
+                        "http": special_pattern_test("http", first_token_text), # http
                         "relative_document_position": get_bucket_num(doc_level_pos, doc_token_len, 12), # relative document position
                         "relative_page_position_characters": get_bucket_num(page_level_pos, page_token_len, 12), # relative page position characters
                         "punct_profile": punct_profile, # 25. punctuation profile

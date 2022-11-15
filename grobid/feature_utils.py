@@ -8,6 +8,16 @@ spliter = re.compile("[ \n\r\t]|([,:;?.!/\(\)\-\"“”‘’'`$])")
 
 fullPunctuations = "(（[ •*,:;?.!/)）-−–‐«»„\"“”‘’'`$#@]*\u2666\u2665\u2663\u2660\u00A0";
 
+SPECIAL_PATTERN = {
+    "year": re.compile("[1,2][0-9][0-9][0-9]"),
+    "http": re.compile("http(s)?"),
+    "isDigit": re.compile("^\\d+$"),
+    "email": re.compile("""^(?:[a-zA-Z0-9_'^&amp;/+-])+(?:\\.(?:[a-zA-Z0-9_'^&amp;/+-])+)*@(?:(?:\\[?(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\\.){3}(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\]?)|(?:[a-zA-Z0-9-]+\\.)+(?:[a-zA-Z]){2,}\\.?)$"""),
+}
+
+SPECIAL_SET = {
+    "month_set": set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"])
+}
 
 def token_in_forbid_zones(layout_token, forbid_zones):
     """如果token在forbid_zone范围内，那么返回True"""
@@ -91,3 +101,26 @@ def vectorize(feature_order, feature_dict):
         else:
             vector.append(str(feature_dict[key]))
     return vector
+
+
+NON_PATTERN = re.compile("[^a-zA-Z]")
+def get_pattern(text):
+    pattern = NON_PATTERN.sub("", text).lower()
+    return pattern
+
+def special_pattern_test(entity_type, text):
+    if entity_type not in SPECIAL_PATTERN:
+        return 0
+
+    matched = SPECIAL_PATTERN[entity_type].match(text)
+    if matched:
+        return 1
+    else:
+        return 0
+
+def special_set_test(set_type, text):
+    if set_type not in SPECIAL_SET:
+        return 0
+
+    text = text.lower()
+    return 1 if text in SPECIAL_SET[set_type] else 0
