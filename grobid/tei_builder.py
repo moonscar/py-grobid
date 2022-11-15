@@ -63,4 +63,7 @@ def build_tei_body(fulltext_result_path):
 
     tei_content = compose_tag(output_words)
 
-    return tei_content
+    bs = BeautifulSoup(tei_content, 'xml')
+    pretty_xml = bs.prettify()
+
+    return pretty_xml
