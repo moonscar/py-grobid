@@ -1,9 +1,11 @@
 import os
+from bs4 import BeautifulSoup
 
 label_map = {
     "<section>": ("<head>", "</head>"),
     "<paragraph>": ("<p>", "</p>"),
-    "<citation_marker>": ('<ref type="bibr">', "</ref>")
+    "<citation_marker>": ('<ref type="bibr">', "</ref>"),
+    "<equation>": ("<formula>", "</formula>")
 }
 
 def compose_tag(tag_words):
@@ -46,7 +48,7 @@ def build_tei_body(fulltext_result_path):
             output_words.append(label_map[cur_state][1])
             if label == "<section>":
                 output_words.append("</div>")
-            
+
             cur_state = label
             
         if label_start:
