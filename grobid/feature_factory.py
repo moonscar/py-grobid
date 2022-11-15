@@ -137,9 +137,6 @@ class FeatureFactory():
                     if not first_token_text:
                         continue
 
-                    # if skip_feature(feature_token):
-                    #     continue
-
                     if first_token.next.name == "SP":
                         second_token_text = first_token.next.next.attrs["CONTENT"]
                     else:
@@ -245,15 +242,33 @@ class FeatureFactory():
 
         forbid_zones = extern_feature.get("forbid_zones", [])
 
+        prev_line_start = None
+
         for text_line in text_block.children:
             line_info = LINE_INFO[0]
 
             line_tokens = text_line.find_all("String")
 
+            # 根据前后两行的开始位置判断当前行是否居中
+            cur_line_start = float(text_line.attrs["HPOS"])
+            if not prev_line_start:
+                prev_line_start = cur_line_start
+
+            average_char_width = float(line_tokens[0].attrs["WIDTH"]) / len(line_tokens[0].attrs["CONTENT"])
+
+            indented = False
+            if prev_line_start - cur_line_start > average_char_width:
+                indented = False
+            elif cur_line_start - prev_line_start > average_char_width:
+                indented = True
+
+            prev_line_start = cur_line_start
+            align_status = "ALIGNEDLEFT" if indented else "LINEINDENT"
+
             for i, token in enumerate(line_tokens, start=1):
-                if token_in_forbid_zones(token, forbid_zones):
-                    # To do: Skip this feature
-                    continue
+                # if token_in_forbid_zones(token, forbid_zones):
+                #     # To do: Skip this feature
+                #     continue
 
                 feature_token = token
                 full_token_text = token.attrs["CONTENT"]
@@ -290,7 +305,7 @@ class FeatureFactory():
                         "block_info": block_info,
                         "line_info": line_info,
                         # "line_pos": get_bucket_num(i, len(line_tokens), 10),
-                        "align_status": "ALIGNEDLEFT",
+                        "align_status": align_status,
                         "font_type": font_style,
                         "font_size_type": font_size_style, # 10.
                         "font_bold": self.font_map[cur_font]["bold"], # 字体加粗
@@ -299,7 +314,7 @@ class FeatureFactory():
                         "is_digital": digital(token_text), #
                         "single_char": "1" if len(token_text)==1 else "0",
                         "punct_info": punct(token_text), # 25. punctuation type
-                        "relative_document_position": 0,#get_bucket_num(doc_level_pos, doc_token_len, 12), # relative document position
+                        "relative_document_position": 0, # get_bucket_num(doc_level_pos, doc_token_len, 12), # relative document position
                         "relative_page_position_characters": get_bucket_num(token_y_pos, extern_feature.get("page_height", 1.0), 12),#get_bucket_num(page_level_pos, page_token_len, 12), # relative page position characters
                         "bitmap_around": "0", # bitmapAround
                         "calloutType": "UNKNOWN",
