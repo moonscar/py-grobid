@@ -16,7 +16,8 @@ SPECIAL_PATTERN = {
 }
 
 SPECIAL_SET = {
-    "month_set": set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"])
+    "month": set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]),
+    "common": english_words_set,
 }
 
 def token_in_forbid_zones(layout_token, forbid_zones):
@@ -124,3 +125,12 @@ def special_set_test(set_type, text):
 
     text = text.lower()
     return 1 if text in SPECIAL_SET[set_type] else 0
+
+def rect_contains(big_rect, small_rect):
+    big_one = Rect(*big_rect)
+    small_one = Rect(*small_rect)
+
+    if big_one.contains(small_one):
+        return 1
+    else:
+        return 0

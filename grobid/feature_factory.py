@@ -9,8 +9,10 @@ from english_words import english_words_set
 from grobid.feature_utils import token_in_forbid_zones, \
     tokenize, get_bucket_num, capital, digital, punct, \
     build_font_feature_map, vectorize, fullPunctuations, \
-    special_pattern_test, special_set_test
+    special_pattern_test, special_set_test, rect_contains
 from grobid.cmd_utils import wapiti_infer
+from grobid.alto_file import AltoFile
+
 
 PAGE_INFO = ["PAGESTART", "PAGEIN", "PAGEEND"]
 BLOCK_INFO = ["BLOCKSTART", "BLOCKIN", "BLOCKEND"]
@@ -25,8 +27,8 @@ feature_cols = {
 class FeatureFactory():
     """
     """
-    def __init__(self, alto_file):
-        self.alto_path = alto_file
+    def __init__(self, alto_path):
+        self.alto_path = alto_path
         self.feature_map = {}
         self.font_map = {}
         self.dump_map = {}
@@ -111,6 +113,9 @@ class FeatureFactory():
     def _extract_for_segment(self):
         doc_layout = self.alto_root.Layout
 
+        alto_file = AltoFile(self.alto_path)
+        main_area = alto_file.calc_page_main_areas()
+
         font = ""
         font_size = 0
         
@@ -127,6 +132,13 @@ class FeatureFactory():
             page_level_pos = 0
 
             for text_block in page.children:
+                top = float(text_block.attrs["VPOS"])
+                left = float(text_block.attrs["HPOS"])
+                bottom = top + float(text_block.attrs["HEIGHT"])
+                right = left + float(text_block.attrs["WIDTH"])
+
+                in_main_area = rect_contains(main_area, (left, top, right, bottom))
+
                 block_info = BLOCK_INFO[0]
                 max_line_len = 1
         
@@ -205,7 +217,7 @@ class FeatureFactory():
                         "vector_around": "0", # vectorAround
                         "repetitive_pattern": "0", # repetitivePattern
                         "first_repetitive_pattern": "0", # firstRepetitivePattern
-                        "in_main_area": "1", # inMainArea
+                        "in_main_area": in_main_area, # inMainArea
                         # extra info for debug
                         "full_line": full_line,
                         "line_id": text_line.attrs["ID"],
