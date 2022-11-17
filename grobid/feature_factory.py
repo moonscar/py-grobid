@@ -152,6 +152,8 @@ class FeatureFactory():
 
                     if first_token.next.name == "SP":
                         second_token_text = first_token.next.next.attrs["CONTENT"]
+                    elif first_token.next.name == "String":
+                        second_token_text = first_token.next.attrs["CONTENT"]
                     else:
                         second_token_text = first_token_text
 
@@ -276,7 +278,7 @@ class FeatureFactory():
                 indented = True
 
             prev_line_start = cur_line_start
-            align_status = "ALIGNEDLEFT" if indented else "LINEINDENT"
+            align_status = "LINEINDENT" if indented else "ALIGNEDLEFT"
 
             for i, token in enumerate(line_tokens, start=1):
                 # if token_in_forbid_zones(token, forbid_zones):
