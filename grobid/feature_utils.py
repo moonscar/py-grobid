@@ -20,6 +20,8 @@ SPECIAL_SET = {
     "common": english_words_set,
 }
 
+PUNCT_TRANS = str.maketrans('“”„‟’‘•‣⁃⁌⁍∙◉◘◦☙❥❧⦾⦿∗', '""""\'\'••••••••••••••*')
+
 def token_in_forbid_zones(layout_token, forbid_zones):
     """如果token在forbid_zone范围内，那么返回True"""
     if not forbid_zones:

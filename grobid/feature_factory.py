@@ -9,7 +9,7 @@ from english_words import english_words_set
 from grobid.feature_utils import token_in_forbid_zones, \
     tokenize, get_bucket_num, capital, digital, punct, \
     build_font_feature_map, vectorize, fullPunctuations, \
-    special_pattern_test, special_set_test, rect_contains
+    special_pattern_test, special_set_test, rect_contains, PUNCT_TRANS
 from grobid.cmd_utils import wapiti_infer
 from grobid.alto_file import AltoFile
 
@@ -156,6 +156,9 @@ class FeatureFactory():
                         second_token_text = first_token.next.attrs["CONTENT"]
                     else:
                         second_token_text = first_token_text
+
+                    first_token_text = first_token_text.translate(PUNCT_TRANS)
+                    second_token_text = second_token_text.strip()
 
                     # 获取字体信息
                     cur_font = first_token.attrs["STYLEREFS"]
