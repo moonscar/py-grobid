@@ -202,7 +202,7 @@ class FeatureFactory():
                         "font_italics": self.font_map[cur_font]["italics"], # 字体变斜
                         "is_captal": capital(first_token_text), # 大写情况
                         "is_digital": digital(first_token_text), #
-                        "single_char": "1" if len(first_token_text)==1 and first_token_text.isalpha() else "0",
+                        "single_char": "1" if len(first_token_text)==1 else "0",
                         "proper_name": "0", # properName
                         "common_name": special_set_test("common", first_token_text), # 17. commonName
                         "first_name": "0", # firstName
