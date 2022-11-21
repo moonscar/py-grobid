@@ -1,11 +1,17 @@
 import os
 from bs4 import BeautifulSoup
+from collections import namedtuple
+
+Tag = namedtuple('Tag', ['Head', "Priority",'Tail'])
 
 label_map = {
-    "<section>": ("<head>", "</head>"),
-    "<paragraph>": ("<p>", "</p>"),
-    "<citation_marker>": ('<ref type="bibr">', "</ref>"),
-    "<equation>": ("<formula>", "</formula>")
+    # label : Tag-Start, Prior, Tag-End
+    "<section>": Tag("<head>", 10, "</head>"),
+    "<paragraph>": Tag("<p>", 10, "</p>"),
+    "<citation_marker>": Tag('<ref type="bibr">', 5, "</ref>"),
+    "<equation>": Tag("<formula>", 5, "</formula>"),
+    "<equation_marker>": Tag("<formula>", 5, "</formula>"),
+    "<equation_label>": Tag("<formula>", 5, "</formula>"),
 }
 
 def compose_tag(tag_words):
@@ -13,10 +19,12 @@ def compose_tag(tag_words):
     fulltext = fulltext.replace(" TOK_CONJ ", "").replace(" - ", "")
     return fulltext
 
+
 def build_tei_body(fulltext_result_path):
     output_words = []
 
     cur_state = ""
+    stack = []
 
     with open(fulltext_result_path) as f:
         fulltext_result = f.readlines()
@@ -33,33 +41,53 @@ def build_tei_body(fulltext_result_path):
         conj_pos = feature_cols[11]
         
         # label 标准化，如果label 不在规定范围内，就不输出
+        label_start = False
         if label.startswith("I-"):
-            label = label.lstrip("I-")
             label_start = True
-            if not cur_state:
-                cur_state = label
-        else:
-            label_start = False
+            label = label.lstrip("I-")
 
         if label in {"<figure>", "<figure_marker>", "<table>", "<table_marker>"}:
             continue
 
-        if cur_state != label:
-            output_words.append(label_map[cur_state][1])
-            if label == "<section>":
-                output_words.append("</div>")
-
-            cur_state = label
-            
-        if label_start:
-            if label == "<section>":
-                output_words.append("<div>")
-
-            output_words.append(label_map[label][0])
-
         if token == "-" and conj_pos == "LINEEND":
             token = "TOK_CONJ"
-        output_words.append(token)
+
+        if len(stack) == 0:
+            output_words.append("<div>")
+            output_words.append(label_map[label][0])
+
+            stack.append(label)
+        else:
+            if stack[-1] == label:
+                if label_start:
+                    output_words.append(label_map[label].Tail)
+                    output_words.append(label_map[label].Head)
+                output_words.append(token)
+            else:
+                # 比较优先级
+                prev_tag = label_map[stack[-1]]
+                cur_tag = label_map[label]
+
+                if cur_tag.Priority < prev_tag.Priority:
+                    stack.append(label)
+
+                    output_words.append(cur_tag.Head)
+                    output_words.append(token)
+                else:
+                    while cur_tag.Priority > prev_tag.Priority:
+                        stack.pop()
+                        output_words.append(prev_tag.Tail)
+
+                        if len(stack):
+                            prev_tag = label_map[stack[-1]]
+                        else:
+                            break
+
+                    if stack[-1] != label:
+                        stack.append(label)
+                        output_words.append(cur_tag.Head)
+
+                    output_words.append(token)
 
     tei_content = compose_tag(output_words)
 
@@ -67,3 +95,11 @@ def build_tei_body(fulltext_result_path):
     pretty_xml = bs.prettify()
 
     return pretty_xml
+
+if __name__ == '__main__':
+    import sys
+    result_path = sys.argv[1]
+    xml_content = build_tei_body2(result_path)
+
+    with open("test.tei.xml", "w+") as w:
+        w.write(xml_content)
