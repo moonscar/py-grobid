@@ -6,7 +6,8 @@ Tag = namedtuple('Tag', ['Head', "Priority",'Tail'])
 
 label_map = {
     # label : Tag-Start, Prior, Tag-End
-    "<section>": Tag("<head>", 10, "</head>"),
+    "<part>": Tag("<div>", 20, "</div>"),
+    "<section>": Tag("<head>", 8, "</head>"),
     "<paragraph>": Tag("<p>", 10, "</p>"),
     "<citation_marker>": Tag('<ref type="bibr">', 5, "</ref>"),
     "<equation>": Tag("<formula>", 5, "</formula>"),
@@ -21,10 +22,10 @@ def compose_tag(tag_words):
 
 
 def build_tei_body(fulltext_result_path):
-    output_words = []
+    output_words = ["<div>"]
 
     cur_state = ""
-    stack = []
+    stack = ["<part>"]
 
     with open(fulltext_result_path) as f:
         fulltext_result = f.readlines()
@@ -53,10 +54,11 @@ def build_tei_body(fulltext_result_path):
             token = "TOK_CONJ"
 
         if len(stack) == 0:
+            stack.append("<part>")
             output_words.append("<div>")
-            output_words.append(label_map[label][0])
+            # output_words.append(label_map[label][0])
 
-            stack.append(label)
+            # stack.append(label)
         else:
             if stack[-1] == label:
                 if label_start:
@@ -83,7 +85,7 @@ def build_tei_body(fulltext_result_path):
                         else:
                             break
 
-                    if stack[-1] != label:
+                    if stack and stack[-1] != label:
                         stack.append(label)
                         output_words.append(cur_tag.Head)
 
@@ -99,7 +101,7 @@ def build_tei_body(fulltext_result_path):
 if __name__ == '__main__':
     import sys
     result_path = sys.argv[1]
-    xml_content = build_tei_body2(result_path)
+    xml_content = build_tei_body(result_path)
 
     with open("test.tei.xml", "w+") as w:
         w.write(xml_content)
