@@ -17,10 +17,14 @@ def wapiti_infer(model_path, feature_path):
 
     with open(feature_path) as f:
         for l in f:
-            while not results[result_idx].startswith(l):
+            result_line = results[result_idx].decode()
+
+            while not result_line.startswith(l.strip()):
                 result_idx += 1
+                result_line = results[result_idx].decode()
 
             ret.append(results[result_idx].decode())
+
             result_idx += 1
 
     return ret
