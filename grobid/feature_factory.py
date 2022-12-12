@@ -392,6 +392,9 @@ class FeatureFactory():
                     if seg_type not in block_map:
                         block_map[seg_type] = []
 
+                    if feature_idx >= len(features):
+                        feature_idx -= 1
+
                     line_feature = features[feature_idx].split("\t")[0].split()
                     rel_page_pos = line_feature[27] if len(line_feature) > 30 else "0"
                     
