@@ -10,7 +10,18 @@ def alto_parser(pdf_path, output_path):
 def wapiti_infer(model_path, feature_path):
     p = subprocess.Popen(" ".join([wapiti_path, "label", "-m", model_path, feature_path]), shell=True, stdout=subprocess.PIPE)
 
-    ret = [l.decode() for l in p.stdout.readlines()]
+    ret = []
+
+    result_idx = 0
+    results = p.stdout.readlines()
+
+    with open(feature_path) as f:
+        for l in f:
+            while not results[result_idx].startswith(l):
+                result_idx += 1
+
+            ret.append(results[result_idx].decode())
+            result_idx += 1
 
     return ret
 
