@@ -1,7 +1,7 @@
 import subprocess
 
-alto_path = "/Users/hyy/workflow/pdf_lab/pdfalto/pdfalto"
-wapiti_path = "/Users/hyy/mytask/b_paper/playground/Wapiti/wapiti"
+alto_path = "/usr/bin/pdfalto"
+wapiti_path = "/usr/bin/wapiti"
 
 def alto_parser(pdf_path, output_path):
     ret = subprocess.call([alto_path, pdf_path, output_path])
