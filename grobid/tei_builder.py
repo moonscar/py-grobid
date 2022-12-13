@@ -1,4 +1,5 @@
 import os
+import re
 from bs4 import BeautifulSoup
 from collections import namedtuple
 
@@ -19,6 +20,22 @@ def compose_tag(tag_words):
     fulltext = " ".join(tag_words)
     fulltext = fulltext.replace(" TOK_CONJ ", "").replace(" - ", "")
     return fulltext
+
+
+def fix_head_number(root):
+    head_number = re.compile("\d+( \. \d+)?")
+
+    for head in root.find_all("head"):
+        matched = head_number.match(head.string)
+
+        if not matched:
+            continue
+
+        matched_content = matched.group(0)
+        head.string = head.string.replace(matched_content, "")
+        head.attrs["n"] = matched_content.replace(" ", "")
+
+    return root
 
 
 def build_tei_body(fulltext_result_path):
@@ -94,6 +111,7 @@ def build_tei_body(fulltext_result_path):
     tei_content = compose_tag(output_words)
 
     bs = BeautifulSoup(tei_content, 'xml')
+    bs = fix_head_number(bs)
     pretty_xml = bs.prettify()
 
     return pretty_xml
