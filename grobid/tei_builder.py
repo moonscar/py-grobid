@@ -26,7 +26,7 @@ def fix_head_number(root):
     head_number = re.compile("\d+( \. \d+)?")
 
     for head in root.find_all("head"):
-        matched = head_number.match(head.string)
+        matched = head_number.match(head.string.strip())
 
         if not matched:
             continue
