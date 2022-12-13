@@ -111,8 +111,8 @@ def build_tei_body(fulltext_result_path):
     tei_content = compose_tag(output_words)
 
     bs = BeautifulSoup(tei_content, 'xml')
-    bs = fix_head_number(bs)
-    pretty_xml = bs.prettify()
+    updated_bs = fix_head_number(bs)
+    pretty_xml = updated_bs.prettify()
 
     return pretty_xml
 
