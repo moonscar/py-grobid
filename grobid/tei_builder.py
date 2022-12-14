@@ -8,7 +8,7 @@ Tag = namedtuple('Tag', ['Head', "Priority",'Tail'])
 label_map = {
     # label : Tag-Start, Prior, Tag-End
     "<part>": Tag("<div>", 20, "</div>"),
-    "<section>": Tag("<head>", 8, "</head>"),
+    "<section>": Tag("</div> <div> <head>", 8, "</head>"),
     "<paragraph>": Tag("<p>", 10, "</p>"),
     "<citation_marker>": Tag('<ref type="bibr">', 5, "</ref>"),
     "<equation>": Tag("<formula>", 5, "</formula>"),
